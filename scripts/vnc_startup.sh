@@ -22,8 +22,8 @@ PID_SUB=$!
 
 echo -e "\n------------------ start VNC server ------------------------"
 echo "remove old vnc locks to be a reattachable container"
-vncserver -kill $DISPLAY &> $STARTUPDIR/vnc_startup.log \
-    || rm -rfv /tmp/.X*-lock /tmp/.X11-unix &> $STARTUPDIR/vnc_startup.log \
+vncserver -kill $DISPLAY &> /vnc_startup.log \
+    || rm -rfv /tmp/.X*-lock /tmp/.X11-unix &> /vnc_startup.log \
     || echo "no locks present"
 
 echo -e "start vncserver with param: VNC_COL_DEPTH=$VNC_COL_DEPTH, VNC_RESOLUTION=$VNC_RESOLUTION\n..."
@@ -36,19 +36,21 @@ echo -e "start window manager\n..."
 echo -e "\n\n------------------ VNC environment started ------------------"
 echo -e "\nVNCSERVER started on DISPLAY= $DISPLAY \n\t=> connect via VNC viewer with $VNC_IP:$VNC_PORT"
 echo -e "\nnoVNC HTML client started:\n\t=> connect via http://$VNC_IP:$NO_VNC_PORT/?password=...\n"
+metacity --replace --no-composite &
+mkdir -p $HOME/.devilspie
+echo "(if (and
+(is (window_property \"_NET_WM_WINDOW_TYPE\") \"_NET_WM_WINDOW_TYPE_NORMAL\")
+(not (contains (window_property \"_NET_WM_STATE\") \"_NET_WM_STATE_MODAL\")))
 
+(begin
+(undecorate)
+(geometry \"2000x2000\")
+(maximize)
+)
+)" >> $HOME/.devilspie/maximize.ds
+devilspie&
 
-if [[ $DEBUG == true ]] || [[ $1 =~ -t|--tail-log ]]; then
-    echo -e "\n------------------ $HOME/.vnc/*$DISPLAY.log ------------------"
-    # if option `-t` or `--tail-log` block the execution and tail the VNC log
-    tail -f /*.log $HOME/.vnc/*$DISPLAY.log
-fi
-
-if [ -z "$1" ] || [[ $1 =~ -w|--wait ]]; then
-    wait $PID_SUB
-else
     # unknown option ==> call command
-    echo -e "\n\n------------------ EXECUTE COMMAND ------------------"
-    echo "Executing command: '$@'"
-    exec "$@"
-fi
+echo -e "\n\n------------------ EXECUTE COMMAND ------------------"
+echo "Executing command: '$@'"
+exec "$@"

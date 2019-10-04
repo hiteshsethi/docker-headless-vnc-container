@@ -10,7 +10,6 @@ EXPOSE $VNC_PORT $NO_VNC_PORT
 ### Envrionment config
 ENV HOME=/headless \
     TERM=xterm \
-    STARTUPDIR=/dockerstartup \
     INST_SCRIPTS=/headless/install \
     NO_VNC_HOME=/headless/noVNC \
     DEBIAN_FRONTEND=noninteractive \
@@ -36,4 +35,4 @@ RUN $INST_SCRIPTS/no_vnc.sh
 RUN $INST_SCRIPTS/xfce_ui.sh
 
 ENTRYPOINT ["/headless/install/vnc_startup.sh"]
-CMD ["--wait"]
+CMD ["xfce4-terminal"]
